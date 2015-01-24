@@ -1,5 +1,8 @@
 package com.weebly.marlookup.main;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -13,8 +16,10 @@ public class Starter {
 	public static void main(String[] args) {
 		System.out.println("Starting Up. (c) by Marenthyu");
 		System.out.println("Checking for Update...");
+		checkForUpdate();
+		System.out.println("Update Check Complete.");
 		
-		
+		System.out.println("Setting LookAndFeel...");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException
@@ -22,13 +27,13 @@ public class Starter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		System.out.println("Done. Loading Up Main Window.");
 
 	 MainWindow programm = new MainWindow();
 
 	}
 	
-	public void	checkForUpdate() {
+	public static void	checkForUpdate() {
 		try {
 			String newestVersion = URLConnectionReader.getText(updateURL);
 			if (newestVersion.equals(MainWindow.VERSION)) {
@@ -38,7 +43,7 @@ public class Starter {
 				int selection = JOptionPane.showConfirmDialog(null, "Update to version "+newestVersion+" found, your Version is: "+MainWindow.VERSION+"\nDo you want to update now?","Update found!",JOptionPane.YES_NO_OPTION);
 				System.out.println(selection);
 				if (selection == 0) {
-					this.openUrl("http://marlookup.weebly.com");
+					openUrl("http://marlookup.weebly.com");
 					System.exit(0);
 				}
 			}
@@ -47,5 +52,15 @@ public class Starter {
 			e.printStackTrace();
 		}
 	}
+	public static void openUrl(String url) throws IOException, URISyntaxException {
+		  if(java.awt.Desktop.isDesktopSupported() ) {
+		        java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+
+		        if(desktop.isSupported(java.awt.Desktop.Action.BROWSE) ) {
+		          java.net.URI uri = new java.net.URI(url);
+		              desktop.browse(uri);
+		        }
+		      } 
+		}
 
 }
