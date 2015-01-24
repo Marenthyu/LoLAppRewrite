@@ -5,21 +5,30 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import org.json.*;
 
 public class MainWindow extends JFrame implements ActionListener {
 	
 	static String VERSION = "5.0DEV";
 	String apikey;
+	String ddragonVersion;
 	JTextField input = new JTextField("Enter a summoner Name...");
 	Container c = new Container();
-	JLabel serverlabel = new JLabel("Server:");
+	JLabel serverlabel = new JLabel("Server:"), summonericon = new JLabel();
 	String[] serverlist = {"br","eune","euw","kr","lan","las","na","oce","ru","tr"};
 	JComboBox serverselector = new JComboBox(serverlist);
 	JButton loadplayerbutton = new JButton("Load Info");
@@ -57,6 +66,7 @@ public class MainWindow extends JFrame implements ActionListener {
 		serverselector.setBounds(90, 15, 75, 25);
 		System.out.println("ServerSelector Setup done.");
 		
+		
 		//Button Setup
 		System.out.println("Button Setup");
 		loadplayerbutton.setBounds(275, 50, 100, 25);
@@ -64,12 +74,19 @@ public class MainWindow extends JFrame implements ActionListener {
 		
 		System.out.println("Button Setup done.");
 		
+		
+		summonericon = new JLabel("you shouldnt see this");
+		summonericon.setVisible(false);
+		summonericon.setBounds(20, 400-188, 128, 128);
+		
+		
 		//Container adds
 		System.out.println("Adding Stuff to container...");
 		c.add(input);
 		c.add(serverlabel);
 		c.add(serverselector);
 		c.add(loadplayerbutton);
+		c.add(summonericon);
 		
 		System.out.println("done adding to container.");
 		
@@ -88,6 +105,12 @@ public class MainWindow extends JFrame implements ActionListener {
 		updateApiKey();
 		System.out.println("Updated API Key.");
 		
+		//Get current ddragon version
+		System.out.println("Getting Current DD Version");
+		ddragonVersion = this.getCurrentDDragonVersion();
+		System.out.println("Got current version.");
+		
+		
 		System.out.println("MainWindow Initialised");
 		
 	}
@@ -99,12 +122,47 @@ public class MainWindow extends JFrame implements ActionListener {
 		if (e.getSource()==loadplayerbutton) {
 			System.out.println("Load Player: "+input.getText());
 			lastPlayer = new Player(apikey, serverselector.getSelectedItem().toString(), input.getText());
+			if (!lastPlayer.name.equals("ERROR"))
+			loadIcon(lastPlayer);
+			else JOptionPane.showMessageDialog(null, "Summoner couldn't be found. Check your spelling!");
 		}
 		
 	}
 	private void updateApiKey() {
 		try {
 			apikey = URLConnectionReader.getText("http://pastebin.com/raw.php?i=Ke7LVRRN");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private String getCurrentDDragonVersion() {
+		String ret= null;
+		JSONArray versionlist = null;
+		try {
+			versionlist = JsonReader.readJsonArrayFromUrl("https://ddragon.leagueoflegends.com/api/versions.json");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		ret = versionlist.get(0).toString();
+		
+		return ret;
+	}
+	
+	private void loadIcon(Player p) {
+		try {
+			System.out.println("Loading icon for player "+p.name);
+			
+			int id = p.getIconId();
+			summonericon.setVisible(false);
+			BufferedImage image = ImageIO.read(new URL("http://ddragon.leagueoflegends.com/cdn/"+ddragonVersion+"/img/profileicon/"+id+".png"));
+			summonericon = new JLabel(new ImageIcon(image));
+			summonericon.setBounds(20, 400-188, 128, 128);
+			c.add(summonericon);
+			summonericon.setVisible(true);
+			System.out.println("Done loading");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

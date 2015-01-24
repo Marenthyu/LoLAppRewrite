@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,6 +35,19 @@ public class JsonReader {
       
     }
   }
+  
+  public static JSONArray readJsonArrayFromUrl(String url) throws IOException, JSONException, InterruptedException {
+	    InputStream is = new URL(url).openStream();
+	    try {
+	      BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+	      String jsonText = readAll(rd);
+	      JSONArray json = new JSONArray(jsonText);
+	      return json;
+	    } finally {
+	      is.close();
+	      
+	    }
+	  }
   
   public static String getFrom (String adress, String thing) throws IOException, JSONException {
 	  String ret = "";

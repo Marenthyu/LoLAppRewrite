@@ -43,30 +43,41 @@ public class Player {
 		this.server = server;
 		this.summonerID = summonerID;
 		
-		populateURL(apikey, false);
-		
+		if (populateURL(apikey, false))
+		{
 		try {
 			info = JsonReader.getallFrom(url.toString());
 			info = info.getJSONObject(info.names().get(0).toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		readInfo();
+		readInfo();}
+		else {
+			summonerID = 0;
+			name = "ERROR";
+			profileIconid = 0;
+			level = 0;
+			revisionDate = 0;
+		}
 	}
 	
-	public void populateURL(String apikey, boolean byname) {
+	private boolean populateURL(String apikey, boolean byname) {
+		boolean ret = false;
 		try {
 			
 			if (byname)
 			url = new URL("https://"+server+".api.pvp.net/api/lol/"+server+"/v1.4/summoner/by-name/"+URLEncoder.encode(name, "UTF-8").replace("+", "%20")+"?api_key="+apikey);
 			else url = new URL("https://"+server+".api.pvp.net/api/lol/"+server+"/v1.4/summoner/"+URLEncoder.encode(name, "UTF-8").replace("+", "%20")+"?api_key="+apikey);
-					}
+			ret = true;
+		}
 		catch(Exception e) {
 			e.printStackTrace();
+			
 		}
+		return ret;
 	}
 	
-	public void readInfo() {
+	private void readInfo() {
 		System.out.println("Reading Info...");
 		System.out.println(info);
 		System.out.println("Populating Player Info...");
@@ -79,6 +90,9 @@ public class Player {
 		
 		System.out.println("Information succesfully Populated!");
 		
+	}
+	public int getIconId() {
+		return profileIconid;
 	}
 
 }
