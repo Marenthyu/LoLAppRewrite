@@ -1,10 +1,11 @@
-package com.weebly.marlookup.main;
+package com.weebly.marlookup.player;
 
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import org.json.*;
+import org.json.JSONObject;
+
+import com.weebly.marlookup.main.JsonReader;
 
 public class Player {
 	URL url;
@@ -12,15 +13,17 @@ public class Player {
 
 	JSONObject info;
 	
-	long summonerID;
-	String name;
-	int profileIconid;
-	long level;
-	long revisionDate;
+	public long summonerID;
+	public String name;
+	public int profileIconid;
+	public long level;
+	public long revisionDate;
 	public Runes runes;
 	public Masteries masteries;
 	public String server;
 	public MatchHistory history;
+	public String abbreviatedname = "";
+	public LeagueInfo leagueinfo;
 	
 	public Player(String apikey, String server, String Name) {
 		this.server = server;
@@ -30,11 +33,17 @@ public class Player {
 		
 		try {
 			info = JsonReader.getallFrom(url.toString());
-			info = info.getJSONObject(info.names().get(0).toString());
-			} catch (Exception e) {
+			abbreviatedname = info.names().get(0).toString();
+			info = info.getJSONObject(abbreviatedname);
+			readInfo();
+		} catch (Exception e) {
 			e.printStackTrace();
+			summonerID = 0;
+			name = "ERROR";
+			profileIconid = 0;
+			level = 0;
+			revisionDate = 0;
 		}
-		readInfo();
 		
 		
 		
@@ -43,22 +52,25 @@ public class Player {
 		this.server = server;
 		this.summonerID = summonerID;
 		
-		if (populateURL(apikey, false))
+		populateURL(apikey, false);
 		{
 		try {
 			info = JsonReader.getallFrom(url.toString());
-			info = info.getJSONObject(info.names().get(0).toString());
+			abbreviatedname = info.names().get(0).toString();
+			info = info.getJSONObject(abbreviatedname);
+			readInfo();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		readInfo();}
-		else {
 			summonerID = 0;
 			name = "ERROR";
 			profileIconid = 0;
 			level = 0;
 			revisionDate = 0;
 		}
+		}
+		
+
+		
 	}
 	
 	private boolean populateURL(String apikey, boolean byname) {
